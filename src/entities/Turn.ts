@@ -22,6 +22,8 @@ export class Turn {
     "5": 0,
     "6": 0,
   };
+  private _leftmostValue: string | null = null;
+  private _rightmostValue: string | null = null;
 
   private constructor(private readonly _game: Game) {
     this._id = this._game.jogadas.length + 1;
@@ -70,23 +72,27 @@ export class Turn {
       return;
     }
 
-    const leftmostPiece = this._game.mesa[0];
-    const rightmostPiece = this._game.mesa[this._game.mesa.length - 1];
-
-    const leftmostValue = this.getPieceValues(leftmostPiece)[0];
-    const rightmostValue = this.getPieceValues(rightmostPiece)[1];
+    this.getTableEdges(this._game.mesa);
 
     for (const piece of this._game.mao) {
       const values = this.getPieceValues(piece);
 
-      if (values.includes(leftmostValue)) {
+      if (values.includes(this._leftmostValue!)) {
         this._possibleActions.push({ pedra: piece, lado: "esquerda" });
       }
 
-      if (values.includes(rightmostValue)) {
+      if (values.includes(this._rightmostValue!)) {
         this._possibleActions.push({ pedra: piece, lado: "direita" });
       }
     }
+  }
+
+  private getTableEdges(table: string[]) {
+    const leftmostPiece = table[0];
+    const rightmostPiece = table[table.length - 1];
+
+    this._leftmostValue = this.getPieceValues(leftmostPiece)[0];
+    this._rightmostValue = this.getPieceValues(rightmostPiece)[1];
   }
 
   private getPieceValues(piece: string) {
